@@ -8,15 +8,11 @@ Currently implements a `:file` like adapter (`:logstash_file`), that writes a JS
 
 Add this line to your application's Gemfile:
 
-    gem 'yell-adapters-logstash'
+    gem 'yell-adapters-logstash', github: 'aupeo/yell-adapters-logstash'
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install yell-adapters-logstash
 
 ## Usage
 
