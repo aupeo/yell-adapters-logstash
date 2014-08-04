@@ -29,7 +29,8 @@ module Yell
               'controller' => controller.class.name,
               'action' => controller.action_name,
               'params' => controller.request.filtered_parameters,
-              'ip' => controller.request.remote_ip,
+              'ip' => controller.request.ip,
+              'remote_ip' => controller.request.remote_ip,
               'format' => controller.request.format.try(:ref),
               'method' => controller.request.method,
               'path' => (controller.request.fullpath rescue "unknown")
