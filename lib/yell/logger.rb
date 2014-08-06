@@ -1,4 +1,3 @@
-require 'yell/logger'
 
 unless (Yell::Logger.public_instance_method(:<<) rescue nil)
 
