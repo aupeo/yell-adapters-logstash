@@ -7,8 +7,9 @@ module Yell
         # Filter entry point (for before_action)
         # @param controller[ActionController::Base]
         def self.before(controller)
-          Thread.current[:yell_adapter_logstash_fields] ||= {}
-          Thread.current[:yell_adapter_logstash_tags] ||= {}
+          # Make sure we re-initialize to empty hashes, as some app servers 'reuse' threads
+          Thread.current[:yell_adapter_logstash_fields] = {}
+          Thread.current[:yell_adapter_logstash_tags] = {}
 
           Thread.current[:yell_adapter_logstash_fields].merge!(
               controller.respond_to?(:yell_adapter_logstash_fields_before) ?
