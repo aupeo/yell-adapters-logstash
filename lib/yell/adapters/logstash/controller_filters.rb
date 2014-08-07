@@ -32,7 +32,7 @@ module Yell
         # @param controller[ActionController::Base]
         def self.before(controller)
           # Make sure we re-initialize to empty hashes, as some app servers 'reuse' threads
-          reset
+          #reset
           fields = controller.respond_to?(:yell_adapter_logstash_fields_before) ?
             controller.send(:yell_adapter_logstash_fields_before, controller) :
             self.yell_adapter_logstash_fields_before(controller)
