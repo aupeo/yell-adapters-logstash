@@ -8,8 +8,8 @@ module Yell
         # reset all custom data
         def self.reset
           # Make sure we re-initialize to empty hashes, as some app servers 'reuse' threads
-          logstash_fields = {}
-          logstash_tags = {}
+          logstash_fields.clear
+          logstash_tags.clear
         end
 
         def self.logstash_fields
