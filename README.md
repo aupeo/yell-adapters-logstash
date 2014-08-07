@@ -41,24 +41,38 @@ Based on the `:file` adapter, and inspired by `:gelf` and `:fluentd`.
 
 ### Custom Fields/Tags
 
-Also, included in the gem there is a `ControllerFilters` class, that you can use in Rails as a `before_action` filter to capture more/custom fields.
+Also, included in the gem there is a `ControllerFilters` class, that you can use in Rails as a `before_action` and/or `after_action` filter to capture more/custom fields.
 
     class ApplicationController < ActionController::Base
         before_action Yell::Adapters::Logstash::ControllerFilters
+        after_action Yell::Adapters::Logstash::ControllerFilters
     end
 
-To override the default provided fields just define the `yell_adapter_logstash_fields` and/or `yell_adapter_logstash_tags` in your controller and return the appropriate hash of fields. The `before()` action of the filter class checks for them before using the defaults.
+To override the default provided fields just define the `yell_adapter_logstash_fields` and/or `yell_adapter_logstash_tags` in your controller and return the appropriate hash of fields. The `before()` and `after()` action of the filter class checks for them before using the defaults.
 
     class ApplicationController < ActionController::Base
         before_action Yell::Adapters::Logstash::ControllerFilters
+        after_action Yell::Adapters::Logstash::ControllerFilters
         
-        def yell_adapter_logstash_fields(controller)
+        def yell_adapter_logstash_fields_before(controller)
             {
                 'controller' => controller.class.name
             }
         end
         
-        def yell_adapter_logstash_tags(controller)
+        def yell_adapter_logstash_tags_before(controller)
+            {
+                'environment' => Rails.env
+            }
+        end
+        
+        def yell_adapter_logstash_fields_after(controller)
+            {
+                'controller' => controller.class.name
+            }
+        end
+        
+        def yell_adapter_logstash_tags_after(controller)
             {
                 'environment' => Rails.env
             }
