@@ -4,20 +4,41 @@ module Yell
       # Filter class to be used with Rails ActionController
       # Use as a before_action to enable collection of more/custom data fields
       class ControllerFilters
+
+        # reset all custom data
+        def self.reset
+          # Make sure we re-initialize to empty hashes, as some app servers 'reuse' threads
+          logstash_fields = {}
+          logstash_tags = {}
+        end
+
+        def self.logstash_fields
+          Thread.current[:yell_adapter_logstash_fields] ||= {}
+        end
+
+        def self.logstash_tags
+          Thread.current[:yell_adapter_logstash_tags] ||= {}
+        end
+
+        def self.merge_fields(fields)
+          logstash_fields.merge!( fields )
+        end
+
+        def self.merge_tags(tags)
+          logstash_tags.merge!( tags )
+        end
+
         # Filter entry point (for before_action)
         # @param controller[ActionController::Base]
         def self.before(controller)
           # Make sure we re-initialize to empty hashes, as some app servers 'reuse' threads
-          Thread.current[:yell_adapter_logstash_fields] = {}
-          Thread.current[:yell_adapter_logstash_tags] = {}
+          reset
+          fields = controller.respond_to?(:yell_adapter_logstash_fields_before) ?
+            controller.send(:yell_adapter_logstash_fields_before, controller) :
+            self.yell_adapter_logstash_fields_before(controller)
+          merge_fields(fields)
 
-          Thread.current[:yell_adapter_logstash_fields].merge!(
-              controller.respond_to?(:yell_adapter_logstash_fields_before) ?
-                  controller.send(:yell_adapter_logstash_fields_before, controller) :
-                  self.yell_adapter_logstash_fields_before(controller)
-          )
-
-          Thread.current[:yell_adapter_logstash_tags].merge!(
+          merge_tags(
               controller.respond_to?(:yell_adapter_logstash_tags_before) ?
                   controller.send(:yell_adapter_logstash_tags_before, controller) :
                   self.yell_adapter_logstash_tags_before(controller)
@@ -26,16 +47,13 @@ module Yell
         # Filter entry point (for after_action)
         # @param controller[ActionController::Base]
         def self.after(controller)
-          Thread.current[:yell_adapter_logstash_fields] ||= {}
-          Thread.current[:yell_adapter_logstash_tags] ||= {}
-
-          Thread.current[:yell_adapter_logstash_fields].merge!(
+          merge_fields(
               controller.respond_to?(:yell_adapter_logstash_fields_after) ?
                   controller.send(:yell_adapter_logstash_fields_after, controller) :
                   self.yell_adapter_logstash_fields_after(controller)
           )
 
-          Thread.current[:yell_adapter_logstash_tags].merge!(
+          merge_tags(
               controller.respond_to?(:yell_adapter_logstash_tags_after) ?
                   controller.send(:yell_adapter_logstash_tags_after, controller) :
                   self.yell_adapter_logstash_tags_after(controller)
