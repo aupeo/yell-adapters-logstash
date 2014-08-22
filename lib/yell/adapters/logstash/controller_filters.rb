@@ -72,7 +72,7 @@ module Yell
               'remote_ip' => controller.request.remote_ip,
               'format' => controller.request.format.try(:ref),
               'method' => controller.request.method,
-              'path' => (controller.request.fullpath rescue "unknown")
+              'path' => (controller.request.path rescue "unknown")
           }
         end
         # Default hash of tags to be collected
