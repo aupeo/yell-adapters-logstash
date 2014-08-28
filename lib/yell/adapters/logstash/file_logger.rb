@@ -9,6 +9,8 @@ module Yell
 
       class FileLogger < Yell::Adapters::Base
 
+        MAX_EVENTS = 1000 # truncate file after so many
+
         attr_accessor :sync
 
         private
@@ -18,6 +20,7 @@ module Yell
 
           self.sync = Yell.__fetch__(options, :sync, :default => true)
           @filename = ::File.expand_path(Yell.__fetch__(options, :filename, :default => default_filename))
+          @event_count = 0
         end
 
         open do
@@ -35,6 +38,13 @@ module Yell
         end
 
         write do |event|
+
+          if @event_count > MAX_EVENTS
+            @stream.truncate(0)
+            @event_count = 0
+          end
+
+
           fields = format({
               'severity' => case event.level
                           when Integer then Yell::Severities[event.level] || 'ANY'
@@ -74,6 +84,7 @@ module Yell
               'tags' => tags
           )
           stream.syswrite(%Q(#{le.to_json}\n))
+          @event_count  += 1
         end
 
         def format(*messages)
