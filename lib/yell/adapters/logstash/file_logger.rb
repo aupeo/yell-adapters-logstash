@@ -100,7 +100,12 @@ module Yell
             when Exception then { 'message' => %Q(#{message.class}: #{message.message}) }.tap do |m|
                 m.merge!({ 'backtrace' => message.backtrace.join("\n") }) if message.backtrace
               end
-            else { 'message' => message.to_s }
+            else
+              s = message.to_s
+              if s.encoding != Encoding::UTF_8
+                s = s.encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: '?')
+              end
+              { 'message' => s }
           end
         end
 
